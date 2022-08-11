@@ -46,8 +46,7 @@ These are the notes while preparing for AWS Certified Data Analytics Specialty 2
 ### Processing
 * Lambda
 * Glue, Hive, ETL (Catalog, end-points, Costs)
-* Glue Studio
-* Glue Databrew
+* Glue Studio & DataBrew
 * Glue Elastic Views
 * Lake Formation
 * Infrastructure (EMR, Hadoop, Serverless, Apache Spark)
