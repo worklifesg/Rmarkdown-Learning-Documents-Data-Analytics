@@ -1,0 +1,84 @@
+---
+title: "Data Analytics Certification Notes"
+author: "Shraman Gupta"
+date: "`r format(Sys.time(), '%d %B, %Y, %X')`"
+output:
+    rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: true
+    highlight: tango
+    css: "style.css"
+    
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction {.tabset}
+
+These are the notes while preparing for AWS Certified Data Analytics Specialty 2022. In this journey, we will make important concept notes for following five sections for Data Analytics
+
+* Collection
+* Storage
+* Processing
+* Analysis
+* Visualization
+* Domain & Security
+
+### Collection
+
+* Kinesis (Data Streams,Producers,Consumers,Enhanced Fan Out,Scaling,Security,Data Firehose)
+* SQS
+* IoT
+* Database Migration Service (DMS)
+* Direct Connect
+* Snow Family
+* MSK (Managed Streaming, Connect, Serverless)
+
+### Storage
+* S3 (Storage,Lifecycle Rules,Versioning,Replication,Performance,Security,Event Notifications)
+* DynamoDB (Basics,APIs,Indexes,PartiQL,DAX,Streams,TTL,Patterns,Security)
+* ElastiCache (Fundamental)
+
+### Processing
+* Lambda
+* Glue, Hive, ETL (Catalog, end-points, Costs)
+* Glue Studio
+* Glue Databrew
+* Glue Elastic Views
+* Lake Formation
+* Infrastructure (EMR, Hadoop, Serverless, Apache Spark)
+* Spark integration with Kinesis & Redshift
+* Applications on EMR (Hive,Pig,HBase,Presto,Zeppelin,Hue,Splunk,Flume)
+* Data Pipeline
+* Step Functions
+
+### Analysis
+* Kinesis Analytics
+* OpenSearch
+* Athena
+* Redshift
+
+### Visualization
+* Quicksight (Pricing,Dashboards, ML Insights)
+
+### Domain & Security
+* S3 Encryption
+* KMS (Basics,Key Rotation)
+* Cloud HSM
+* STS & Cross Account
+* Identity Federation
+* Policies
+* CloudTrail
+* VPC Endpoints
+
+### Other Topics
+* EC2 for Big Data
+* AWS AppSync and Kendra
+* AWS Data Exchange
+* AWS AppFlow
+* AWS Cleanup
+* Sagemaker
