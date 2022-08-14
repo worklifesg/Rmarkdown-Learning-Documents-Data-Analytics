@@ -28,6 +28,8 @@ These are the notes while preparing for AWS Certified Data Analytics Specialty 2
 * Visualization
 * Domain & Security
 
+--------------------------------------------------------------------------
+
 ### Collection
 
 * Kinesis (Data Streams,Producers,Consumers,Enhanced Fan Out,Scaling,Security,Data Firehose)
@@ -38,10 +40,14 @@ These are the notes while preparing for AWS Certified Data Analytics Specialty 2
 * Snow Family
 * MSK (Managed Streaming, Connect, Serverless)
 
+--------------------------------------------------------------------------
+
 ### Storage
 * S3 (Storage,Lifecycle Rules,Versioning,Replication,Performance,Security,Event Notifications)
 * DynamoDB (Basics,APIs,Indexes,PartiQL,DAX,Streams,TTL,Patterns,Security)
 * ElastiCache (Fundamental)
+
+--------------------------------------------------------------------------
 
 ### Processing
 * Lambda
@@ -55,14 +61,20 @@ These are the notes while preparing for AWS Certified Data Analytics Specialty 2
 * Data Pipeline
 * Step Functions
 
+--------------------------------------------------------------------------
+
 ### Analysis
 * Kinesis Analytics
 * OpenSearch
 * Athena
 * Redshift
 
+--------------------------------------------------------------------------
+
 ### Visualization
 * Quicksight (Pricing,Dashboards, ML Insights)
+
+--------------------------------------------------------------------------
 
 ### Domain & Security
 * S3 Encryption
@@ -73,6 +85,8 @@ These are the notes while preparing for AWS Certified Data Analytics Specialty 2
 * Policies
 * CloudTrail
 * VPC Endpoints
+
+--------------------------------------------------------------------------
 
 ### Other Topics
 * EC2 for Big Data
@@ -90,9 +104,11 @@ There are multiple ways for data collection in AWS.
 
 * **Real Time collection** - where we can perform action on our data
   * KDS, SQS, IoT - These services help you to react in real-time to events or data that is happening in your infrastructure
+
   
 * **Near-real-time** - Reactive Actions
   * Firehose, DMS
+
   
 * **Batch - Historical Analysis** - when we want to move large amount of data to perform some data analysis
   * Snowball, Data Pipeline
@@ -114,7 +130,7 @@ knitr::include_graphics('./images/kinesis_data_streams.png')
   * Partition key - determines in which shard will the record go to
   * Data Blob - Value itself
 * **Consumers** - Applications, Lambda functions, Firehose, Kinesis Data Analytics
-  * When a consumer recieves a record, it receives a *patition key, sequence number (where the record was in shard), and data blob
+  * When a consumer recieves a record, it receives a *patition key, sequence number (where the record was in shard), and data blob*
   * 2 MB/sec (shared) per shard all consumers
   * 2 MB/sec (enhanced) per shard per consumer
 
@@ -127,7 +143,7 @@ knitr::include_graphics('./images/kinesis_data_streams.png')
 * **Capacity Modes:**
   * *Provisioned Mode* 
     * Choose # of shards and scale manually or through API
-    * Input (1 MB/sec) a& throughput (2 MB/sec both classic/enhanced)
+    * Input (1 MB/sec) & throughput (2 MB/sec both classic/enhanced)
     * Pay per shard provisioned per hour
   * *On-demand Mode*
     * No provision needed
@@ -144,3 +160,38 @@ knitr::include_graphics('./images/kinesis_data_streams.png')
     * client side
   * VPC Endpoints available for Kinesis
   * Monitor API calls through CloudTrail
+
+--------------------------------------------------------------------------
+
+### Producers
+
+### Consumers
+
+### Enhanced Fan Out
+
+### Scaling
+
+### Security
+
+### Kinesis Firehose
+
+### SQS
+
+### Kinesis Vs SQS
+
+
+## Other Collections {.tabset}
+
+This section includes IoT, Database Migration Service (DMS), Direct Connect, Snow Family, Managed Streaming for Kafka (MSK)
+
+### IoT
+
+### DMS
+
+### Direct Connect
+
+### Snow Family
+
+### MSK
+
+### Kinesis vs MSK
