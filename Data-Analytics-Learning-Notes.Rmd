@@ -81,3 +81,66 @@ These are the notes while preparing for AWS Certified Data Analytics Specialty 2
 * AWS AppFlow
 * AWS Cleanup
 * Sagemaker
+
+--------------------------------------------------------------------------
+
+## Collection {.tabset}
+
+There are multiple ways for data collection in AWS. 
+
+* **Real Time collection** - where we can perform action on our data
+  * KDS, SQS, IoT - These services help you to react in real-time to events or data that is happening in your infrastructure
+  
+* **Near-real-time** - Reactive Actions
+  * Firehose, DMS
+  
+* **Batch - Historical Analysis** - when we want to move large amount of data to perform some data analysis
+  * Snowball, Data Pipeline
+
+--------------------------------------------------------------------------
+
+### Kinesis Data Streams
+
+<u>**Overview**</u>
+
+```{r echo=FALSE, out.width='100%'}
+knitr::include_graphics('./images/kinesis_data_streams.png')
+```
+
+* Way to stream big data into your systems. It is made of multiple **shards** and this is something we need to provision ahead of time
+* **Shard** - Data is split across all the shards and they define stream capacity in terms of ingestion and consumption rates
+* **Producers** - Send data (**Produce Records**) into KDS and can be **manyfold**. Ex. applications, clients, SDK, KPL, Kinesis Agent. Data can be sent at the rate of **1 MB/s or 1000 msg/sec per shard**
+* **Records** - is made of *partition key* and *data blob (upto 1 MB)*
+  * Partition key - determines in which shard will the record go to
+  * Data Blob - Value itself
+* **Consumers** - Applications, Lambda functions, Firehose, Kinesis Data Analytics
+  * When a consumer recieves a record, it receives a *patition key, sequence number (where the record was in shard), and data blob
+  * 2 MB/sec (shared) per shard all consumers
+  * 2 MB/sec (enhanced) per shard per consumer
+
+* **Properties:**
+  * **Retention period** - 1 day to 1 year
+  * Ability to reprocess data
+  * Once data is inserted, it can't be deleted **(immutable)**
+  * Data that shares same partition, goes to same shard
+
+* **Capacity Modes:**
+  * *Provisioned Mode* 
+    * Choose # of shards and scale manually or through API
+    * Input (1 MB/sec) a& throughput (2 MB/sec both classic/enhanced)
+    * Pay per shard provisioned per hour
+  * *On-demand Mode*
+    * No provision needed
+    * Default capacity provisioned (4 MB/sec)
+    * Automatic scaling (observed throughput peak during last 30 days)
+    * Pay per stream per hour & data in/out per GB
+
+* **Security:**
+  * It is within region (where we have shards)
+  * IAM polices for shards
+  * Encryption
+    * in-flight: HTTPS endpoints
+    * at-rest: KMS
+    * client side
+  * VPC Endpoints available for Kinesis
+  * Monitor API calls through CloudTrail
