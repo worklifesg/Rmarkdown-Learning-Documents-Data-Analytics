@@ -165,6 +165,66 @@ knitr::include_graphics('./images/kinesis_data_streams.png')
 
 ### Producers
 
+How is the data ingested into Kinesis Streams. 
+
+```{r echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics('./images/kinesis_producers.png')
+```
+
+* **SDK** - allows you to write code or use CLI to directly send data into Kinesis Streams
+  * <u>*PutRecord(s) API*</u>
+    * API to send one or more records
+    * Uses batching and **increases** throughput (which means there will be less HTTP requests as we send many records as a part of one HTTP request)
+    * Over the limits of throughput, we will get **ProvisionedThroughputExceeded**
+    * SDK can be used in very different ways: Mobile SDK (Android, iOS)
+    * **Used case** - in case of *low throughput*, need *higher latency* with simple API or just working directly from *Lambda*
+    * **AWS Managed sources (uses SDK) for KDS** - CW logs, IoT, Kinesis Data Analytics
+  * <u>*ProvisionedThroughputExceeded*</u>
+    - It happens when we are sending more data than expected i.e. *exceeding MB/s or TPS for any shard*
+    - Due to **hot shard** (partition key is corrupted and excess data into that partition). Need to distribute as much as possible
+    - (+) Retries with backoff
+    - (+) Increase shards (scaling)
+    - (+) ensure partition key is good (distributed well)
+* **Kinesis Producer Library (KPL)** - more advanced, write better code and has good features (for enhanced throughput)
+  * Easy to use and highly configurable C++/Java library
+  * Used for **building high performance, long running producers**
+  * **Automated + configurable** retry mechanism (*Automatically deals with issue with API (SDK)*)
+  * 2 Types of APIs:
+    * Synchronous: Same as SDK
+    * Asynchronous: Better performance for async process
+  * **Submit** metrics to CW for monitoring
+  * **Supports batching** - increased throughput + decrease cost (ON by default)
+    * Collect Records + Write to multiple shards
+    * Aggregate that increases latency i.e. *capability to store multiple records in one record* + *increase payload size and imporve throughput*
+  * Compression (by user only) - *make records smaller*
+  * To read **KPL Records**, we need KCL or special helper library (can't use CLI)
+  * <u>**Batching**</u>
+    * Let us say we are sending 2 KB of data to Kinesis Data streams using KPL
+    * It won't be sent away on spot but **will wait for next records that might be coming** 
+    * At one point, KPL can **aggregate** all records into one record and we can do it multiple times
+    ```{r echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics('./images/kinesis_kpl.png')
+```
+    * And then to make it more efficient, it will Collect all aggregated records in PutRecords in one API call 
+    * We can use **RecordMaxBufferedTime** that introduces some delay waiting for all records to go together in one API call **(default is 100ms)**
+    * **WHEN NOT TO USE KPL** - Applciation that can't tolerate additional delay is not good use case here (need to use SDK directly here)
+
+    ```{r echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics('./images/kinesis_notusekpl.png')
+```
+    
+* **Kinesis Agent** - Linux program that runs on server to fetch log files and send reliably to Kinesis Streams
+  * Java based agent and built upon KPL
+  * Only Linux based system
+  * Features:
+    * Write from multiple directories and write to multiple streams
+    * Routing feature based on directory / log file
+    * Pre-process data before sending to streams
+    * handles log file rotation, checkpointing and retry upon failures
+    * Emits metrics to CW for monitoring
+  
+* **Third party libraries** - Spark, Flume, log4j, Kafka Connect, NiFi
+
 ### Consumers
 
 ### Enhanced Fan Out
