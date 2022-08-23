@@ -130,7 +130,7 @@ knitr::include_graphics('./images/kinesis_data_streams.png')
   * Partition key - determines in which shard will the record go to
   * Data Blob - Value itself
 * **Consumers** - Applications, Lambda functions, Firehose, Kinesis Data Analytics
-  * When a consumer recieves a record, it receives a *patition key, sequence number (where the record was in shard), and data blob*
+  * When a consumer receives a record, it receives a *partition key, sequence number (where the record was in shard), and data blob*
   * 2 MB/sec (shared) per shard all consumers
   * 2 MB/sec (enhanced) per shard per consumer
 
