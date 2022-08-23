@@ -209,7 +209,7 @@ knitr::include_graphics('./images/kinesis_kpl.png')
     * We can use **RecordMaxBufferedTime** that introduces some delay waiting for all records to go together in one API call **(default is 100ms)**
     * **WHEN NOT TO USE KPL** - Applciation that can't tolerate additional delay is not good use case here (need to use SDK directly here)
 
-    ```{r echo=FALSE, out.width='50%', fig.align='center'}
+    ```{r echo=FALSE, out.width='550%', fig.align='center'}
 knitr::include_graphics('./images/kinesis_notusekpl.png')
 ```
     
