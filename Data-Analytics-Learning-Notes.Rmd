@@ -227,6 +227,63 @@ knitr::include_graphics('./images/kinesis_notusekpl.png')
 
 ### Consumers
 
+How is the data consumed from Kinesis Streams
+
+```{r echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics('./images/kinesis_consumer.png')
+```
+
+* **SDK** 
+  * <u>*GetRecord(s) API*</u>
+    * Records are polled by consumers from a shard
+    * Each shard has **2 MB total aggregate throughput** i.e. 3 shards means total 6MB
+    * return upto *10 MB of data with a throttle for 5 sec* or upto 10k records
+    * **Latency limit - Max of 5 GetRecords() calls shard/sec** i.e. 200ms latency
+    * *More consumers = less throughput*
+    
+    ```{r echo=FALSE, out.width='30%', fig.align='center'}
+knitr::include_graphics('./images/consumer_sdk.png')
+```
+
+* **Kinesis Client Library (KCL)** - Similarly, we produce by KPL, here we will consume the data by KCL
+  * Java-first library but exists for other languages too (Golang, Python, Ruby, Node, .Net)
+  * Read records from Kinesis produced with KPL (de-aggregation)
+  * **Multiple consumers** with **multiple shards** in **one** group - **Shard Discovery**
+  * **Checkpointing** - feature to resume progress
+  * Uses **DynamoDB for coordination and checkpointing**
+    * Provision DynamoDB (WCU/RCU)
+    * Or use On-demand 
+    * If we get **ExpiredIteratorException**, we should increase WCU
+  * Record processors will process the data
+  * Example below
+    * We have a Kinesis Streams with 4 shards
+    * We have a DynamoDB for Checkpointing and Coordination
+    * We have 2 KCL applications running on two different EC2 in same group
+    * With the help of shard discovery mechanism, KCL1 will be reading from Shard 1&2 and KCL2 will be reading from Shard 3&4
+    * Then KCL applications will be checkpointing with DynamoDB
+    
+    ```{r echo=FALSE, out.width='30%', fig.align='center'}
+knitr::include_graphics('./images/KCL_example.png')
+```
+   
+* **Kinesis Connector Library** - Older Java library in 2016 and uses KCL library in the back-end and *uses EC2 to write data to different sources.*
+  * It's sole purpose is to take data from Kinesis data streams and write data to **S3, DynamoDB, Redshift, ElasticSearch**
+  * This service is replaced by Firehose and Lambda together
+  
+
+    ```{r echo=FALSE, out.width='30%', fig.align='center'}
+knitr::include_graphics('./images/Connector_library.png')
+```
+ 
+
+* **Third party libraries** - **Apache Spark, Log4j**, Appenders, Flume, Kafka Connect
+* **Kinesis Firehose**
+* **AWS Lambda**
+  * Source records from Data streams
+  * It has a library to de-aggregate record from KPL
+  * Use to run lightweight ETL to **S3, DynamoDB, Redshift, ElasticSearch**
+  * Read in real-time from Kineses Data Streamsn and trigger notifications (with configurable batch size)
+
 ### Enhanced Fan Out
 
 ### Scaling
