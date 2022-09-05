@@ -13,8 +13,9 @@ output:
     
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r, setup, include=FALSE}
+library("vembedr")
+knitr::opts_chunk$set(echo = TRUE, collapse=TRUE)
 ```
 
 ## Introduction {.tabset}
@@ -202,14 +203,14 @@ knitr::include_graphics('./images/kinesis_producers.png')
     * Let us say we are sending 2 KB of data to Kinesis Data streams using KPL
     * It won't be sent away on spot but **will wait for next records that might be coming** 
     * At one point, KPL can **aggregate** all records into one record and we can do it multiple times
-    ```{r echo=FALSE, out.width='50%', fig.align='center'}
+```{r echo=FALSE, out.width='50%', fig.align='center'}
 knitr::include_graphics('./images/kinesis_kpl.png')
 ```
     * And then to make it more efficient, it will Collect all aggregated records in PutRecords in one API call 
     * We can use **RecordMaxBufferedTime** that introduces some delay waiting for all records to go together in one API call **(default is 100ms)**
     * **WHEN NOT TO USE KPL** - Applciation that can't tolerate additional delay is not good use case here (need to use SDK directly here)
 
-    ```{r echo=FALSE, out.width='550%', fig.align='center'}
+```{r echo=FALSE, out.width='550%', fig.align='center'}
 knitr::include_graphics('./images/kinesis_notusekpl.png')
 ```
     
@@ -229,7 +230,7 @@ knitr::include_graphics('./images/kinesis_notusekpl.png')
 
 How is the data consumed from Kinesis Streams
 
-```{r echo=FALSE, out.width='50%', fig.align='center'}
+```{r, echo=FALSE, out.width='50%', fig.align='center'}
 knitr::include_graphics('./images/kinesis_consumer.png')
 ```
 
@@ -241,7 +242,7 @@ knitr::include_graphics('./images/kinesis_consumer.png')
     * **Latency limit - Max of 5 GetRecords() calls shard/sec** i.e. 200ms latency
     * *More consumers = less throughput*
     
-    ```{r echo=FALSE, out.width='30%', fig.align='center'}
+```{r echo=FALSE, out.width='30%', fig.align='center'}
 knitr::include_graphics('./images/consumer_sdk.png')
 ```
 
@@ -262,7 +263,7 @@ knitr::include_graphics('./images/consumer_sdk.png')
     * With the help of shard discovery mechanism, KCL1 will be reading from Shard 1&2 and KCL2 will be reading from Shard 3&4
     * Then KCL applications will be checkpointing with DynamoDB
     
-    ```{r echo=FALSE, out.width='30%', fig.align='center'}
+```{r echo=FALSE, out.width='30%', fig.align='center'}
 knitr::include_graphics('./images/KCL_example.png')
 ```
    
@@ -271,7 +272,7 @@ knitr::include_graphics('./images/KCL_example.png')
   * This service is replaced by Firehose and Lambda together
   
 
-    ```{r echo=FALSE, out.width='30%', fig.align='center'}
+```{r echo=FALSE, out.width='30%', fig.align='center'}
 knitr::include_graphics('./images/Connector_library.png')
 ```
  
@@ -295,6 +296,12 @@ knitr::include_graphics('./images/Connector_library.png')
 ### SQS
 
 ### Kinesis Vs SQS
+
+### Hands-on Sessions
+
+* **Kinesis Data Streams Sessions**
+
+  [<img src="./videos/Intro.png" width="250"/>](https://youtu.be/bfOj06zTyfg)
 
 
 ## Other Collections {.tabset}
