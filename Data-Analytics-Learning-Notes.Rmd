@@ -287,12 +287,115 @@ knitr::include_graphics('./images/Connector_library.png')
 
 ### Enhanced Fan Out
 
+* Works with KCL 2.0 & AWS Lambda
+* Each consumer will get 2 MB/s provisioned throughput per shard i.e. the data is **pushed** with 2 MB/s when consumer is SubscribeToShard()
+* **Enhanced Fan Out** - pushing data to consumers over HTTP/2
+* Can cover more consumers + reduced latency (~70 ms)
+* Standard Consumers vs Enhanced Fan out
+  * SC - Low # of consuming applications, tolerate ~200 ms latency, low cost
+  * EF - Multiple consumer applications, low latency ~70 ms and higher costs
+
 ### Scaling
+
+* **Operations**
+  * *Add Shards* - Shard splitting, inc stream capacity (1 MB/s data in per shard), divide a *hot shard*, old shard is closed and will be deleted once the data is expired, *helps to improve throughput*
+  * *Merge Shards* - dec stream capacity + save cost, group 2 shards with low traffic, old shards are closed and deleted based on data expiration
+  * *Out-of-order records* :
+    * Reason is Resharding
+    * Read from child shards
+    * Data that hasn't be read is still be parent
+    * After resharding, read entirely from parent until we don't have new records
+    * KCL already has logic built-in even after resharding
+  * *AutoScaling*: not native Kinesis feature, API call to change UpdateShardCount, implement AutoScaling with Lambda
+
+* **Limitations**
+  * Resharding can't be done in parallel (plan capacity in advance)
+  * Perform one resharding operation at a time
+  * For 1k shards it take 30K seconds (~8 hrs) to double shards to 2000  
+  * *Can't* scale
+    * more than 10x for each  rolling 24h period for each stream
+    * up to more then double your current shard count
+    * down below 1/2 of your current shard count
+    * up to more than 500 shards in a stream
+    * stream upto 500 shards down
+    * up more than shard limit for your account
+
+### Handling Duplicate Records
+
+* **Producers:**
+  * Due to network timeouts, duplicates are created as acknowledgement may not be received to producers
+  * embed unique record it id in data to deduplicate
+* **Consumers:**
+  * Retries can make application read data twice
+  * Retries happen when:
+    * worker terminates unexpectedly
+    * worker instances are added/removed
+    * shards are merged or split
+    * application is deployed
+  * Fixes:
+    * make consumer applciation idempotent
+    * if final destination can handle duplicates, it is recommended to do it there
 
 ### Security
 
+* Control access/authorization using IAM
+* Encryption in flight using HTTPS
+* Encryption at rest using KMS
+* Client side encryption
+* VPC Endpoints available for Kinesis to access within VPC
+
+
 ### Kinesis Firehose
 
+* Kinesis Firehose is used to store data in to target destinations
+* Near Real time service i.e. stores big batch to data to write into target destinations (batch writes) - **60 s latency min for non full batches**
+* Diagram to understand the producers and consumers destinations:
+
+
+```{r echo=FALSE, out.width='60%', fig.align='center'}
+knitr::include_graphics('./images/kinesis_firehose.png')
+```
+
+* Fully AWS Managed service, No Admin is required
+* Load data into S3, Redhsift, ElasticSearch, Splunk
+* Automatic scaling
+* Support data formats
+* Data conversions from JSON to parquet/ORC (S3)
+* Data transformation through Lanbda (csv to json)
+* Supports compressions when target is S3 (GZIP, ZIP, SNAPPY)
+* Only GZIP is data, then can be loaded into Redshift as well
+* Pay only for amount of data going through Firehose
+* **Spark/KCL do not read from KDF**
+
+* **Delivery Diagram**
+
+```{r echo=FALSE, out.width='60%', fig.align='center'}
+knitr::include_graphics('./images/kinesis_firehose_delivery.png')
+```
+
+* **Buffer Sizing**
+  * Firehose accumulates records in a buffer
+  * Buffer is flushed based on time (minimum 1min) and size (few MBs) rules (reaches max value)
+  * Firehose can automatically increase buffer size to increase *throughput*
+  * *Higher throughput* means *buffer size* will be hit
+  * *Lower throughput* means *buffer time* will be hit
+
+### Streams vs Firehose
+
+* **Streams**:
+  * Write custom code (producer/consumer)
+  * Real time (~200 ms latency for classic, ~70 ms for enhanced fan out)
+  * Must manage scaling (shard splitting / merging)
+  * Data storage (1 to 365 days), replay capability, multi-consumers
+  * Use with lambda to isnert data in real time to ElasticSearch
+
+* **Firehose:**
+  * Fully managed, data can be send to S3, Splunk, Redshift, ElasticSearch
+  * Serverless data transformations with Lambda
+  * Near real time (lowest buffer time is 1 minute)
+  * Automated Scaling
+  * No data storage
+  
 ### SQS
 
 ### Kinesis Vs SQS
