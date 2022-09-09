@@ -398,7 +398,89 @@ knitr::include_graphics('./images/kinesis_firehose_delivery.png')
   
 ### SQS
 
+* Producers will send message to SQS queues and consumers will poll messages from SQS
+* **Standard**:
+  * Fully managed and auto-scaling (from 1 message per sec to 10k messages per second)
+  * Default retention of messages from 4 to 14 days
+  * No limit of how many messages can be in a queue
+  * Low latency (< 10 ms on publish and receive)
+  * Horizontal scaling
+  * Can have duplicate messages (**atleast once deliver**)
+  * Can have out of order message (no FIFO)
+  * Message size limitation - 256 KB
+  
+* **Producing Messages**:
+  * Default body
+  * *Add message attributes* (metadata - optional)
+  * *Provide Delay Delivery* (optional)
+  * In return, we get *message identifier + MD5 has of body*
+* **Consuming Messages**:
+  * *Poll* SQS for messages (upto 10 messages at a time)
+  * Process messages within *visibility timeout*
+  * *Delete message* using message ID and receipt handle.
+
+```{r echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics('./images/SQS_Producing_message.png')
+knitr::include_graphics('./images/SQS_Consuming_message.png')
+```
+
+* **SQS FIFO (First-in-First-Out)**
+  * .fifo
+  * Lower throughput
+  * Messages are processed in order
+  * Messages are sent exactly sent once
+  * 5 minute interval de-duplication using **'Duplication ID'**
+  * Not compatible with S3 event notification
+
+* **SQS Extended Limit **
+  * java library to send large messages > 256 KB
+
+```{r echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics('./images/SQS_Ext_Client.png')
+```
+
+* **Use cases:**
+  * *Decouple applications*
+  * *Buffer writes to db*
+  * *Handle large loads of messages coming in*
+  * *Can be integrated with Auto-Scaling using CW*
+
+* **Limits:**
+  * Max of **120k in-flight messages** being processed by consumers
+  * Batch request has max of **10 messages**
+  * Message content is limited to **XML, JSON, unformatted text**
+  * Standard SQS have unlimited TPS (transactions per second)
+  * FIFO support upto **3000 messages per second (using batching)**
+  * Max size is 256 KB
+  * Data retention from **1 minute to 14 days**
+  * **Pricing - per API request and network usage**
+
+* **Security:**
+  * *Encryption* in flight using HTTPS endpoint
+  * Can be *enable SSE using KMS* (encrpts only body not metadata)
+  * *IAM policy* to allow usage of SQS
+  * *SQS queue access policy*
+
 ### Kinesis Vs SQS
+
+```{r echo = FALSE, results='markup'}
+library(knitr)
+tab_01 = data.frame(
+  KinesisDataStreams= c("Data can be consumed many times", "Data is deleted after retention period", "Ordering of records is preserved", "Build multiple applications reading from same stream (Pub/Sub)","Streaming MapReduce quering capability", "Checkpoint needed to track consumption progress", "Provisioned mode or on-demand mode", "**Use cases:** Fast log & event data collection/processing, Real-time metrics/reporting, mobile data capture, Real-time DA, Gaming data feed, Complex Stream Processing, Data feed from IoT"),
+  SQS  = c("Queue, decouple applications","One application per queue", "Records are deleted after consumption", "Messages are processed independently", "Ordering for FIFO queues", "Capability to delay messages", "Dynamic scaling of load", "**Use cases:** Order, image processing, Auto-scaling queues, Buffer/batch messages for future processing, Request Offloading")
+)
+
+kable(
+  tab_01,
+  col.names = c("*Kinesis Data Streams*", "*SQS*"),
+  digits = 2,
+  caption = "Difference between Kinesis and SQS"
+  )
+```
+
+```{r echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics('./images/KinesisComparision.png')
+```
 
 ### Hands-on Sessions
 
