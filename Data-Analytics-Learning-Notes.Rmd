@@ -504,3 +504,104 @@ This section includes IoT, Database Migration Service (DMS), Direct Connect, Sno
 ### MSK
 
 ### Kinesis vs MSK
+
+
+## Storage (S3) {.tabset}
+
+This section includes details overview about S3
+
+### S3
+
+```{r echo = FALSE, results='markup'}
+library(knitr)
+Overview=" * Store objects (files) in buckets (directories) <br> * global unique name <br> * defined at regional level <br> * Naming convention - No uppercase, underscore, 3-63 long character, Not an IP, Must start with lowercase letter or number <br> * Objects - (files) have key where key is FULL path <br> * Object values - max size is 5TB, uploading > 5GB we have to use **multi-part upload**, can have Version ID <br> * Metdata - list of text key/value pairs system or user metadata <br> * Tags - upto 10 key-value pair for security/lifecycle"
+
+Consistency="* Strong consistency <br> * Whenever we successfully write (PUT) or overwrite an existing object, subsequent read request immediately receives latest version of the object <br> * Same case when you list the new object "
+
+Durability="* Defines how many times an object in S3 will be lost <br> * High durability (99.999999999 %) across multiple AZ <br> * For all storage classes"
+
+Availability="* Measures how readily available a service is <br> * Depends upon storage class <br> * Standard Class has 99.99% availability (i.e. not available 53 min a year)"
+
+StorageClasses="* Standard - General Purpose <br> * Standard-Infrequent Access (IA) <br> * One Zone-Infrequent Access <br> * Glacier Instant Retrieval, Flexible Retrieval, Deep Archive <br> * Intelligent Tiering"
+
+tab_01 = data.frame(
+  S3= c("Overview","Consistency","Durability","Availability","Storage Classes"),
+  Description  = c(Overview,Consistency,Durability,Availability, StorageClasses)
+)
+
+kable(
+  tab_01,
+  col.names = c("*S3*", "*Description*"),
+  "pipe"
+  )
+```
+
+### S3 Storage Classes
+
+```{r echo = FALSE, results='markup'}
+library(knitr)
+Standard=" * 99.99% Availability <br> * Used for frequently accessed data <br> * Low latency and high throughput <br> * Sustain 2 concurrent facility failures <br> Use cases: Big Data Analytics, Mobile & gaming, content distribution"
+
+StandardIA="* 99.9% Availability <br> * Less Frequently accessed but requires rapid access when needed <br> * Lower cost than S3 standard <br> * Use Case: Disaster Recovery and backups"
+
+OneZoneIA="* High durability (99.999999999 %) across single AZ <br> * Data is lost when AZ is destroyed <br> * 99.5% Availability <br> * Use Case: Store secondary backup copies of on-premises data or data you can create"
+
+Glacier="* Low cost object storage meant for archiving or backup <br> * Pricing: price for storage + object retrieval cost <br> * **Glacier IR:** ms  retrieval, great for data accessed once a quarter, minimum storage of 90 days <br> * **Glacier FR:** Expedited (1-5 min), Standard (3-5 hours), Bulk (5-12, free), minimum storage of 90 days <br> * **Glacier Deep Archive:** Standard (12h), Bulk (48h), minimum storage of 180 days "
+
+IT="* Small monthly monitoring & auto-tiering fee <br> * moves objects automatically between AccessTiers based on usage <br> * There are no retrieval charges <br> * **Frequent (default), Infrequent (30 days), Archive Instant (90 days), Archive Access (90 to 700+ days), Deep Archive Access (180 to 700+ days)"
+
+tab_01 = data.frame(
+  Standard= c(Standard),
+  StandardIA= c(StandardIA),
+  OneZoneIA= c(OneZoneIA),
+  Glacier= c(Glacier),
+  IT= c(IT)
+)
+
+kable(
+  tab_01,
+  col.names = c("*Standard*", "*StandardIA*","*OneZoneIA*","*Glacier*","*IT*")
+  )
+```
+
+```{r echo=FALSE, out.width='80%', fig.align='center'}
+knitr::include_graphics('./images/S3storage.png')
+```
+
+
+### S3 Lifecycle Rules
+
+### S3 Performance
+
+### S3 Encryption + Security
+
+### S3 Other features
+
+## Storage (DynamoDB) {.tabset}
+
+This section includes details overview about DynamoDB
+
+### DynamoDB
+
+### DynamoDB RCU/WCU
+
+### DynamoDB APIs
+
+### DynamoDB Indexes
+
+### DynamoDB PartiQL/DAX
+
+### DynamoDB Streams
+
+### DynamoDB TTL
+
+
+## Processing (Lambda) {.tabset}
+
+## Processing (Glue) {.tabset}
+
+## Processing (Lake Formation) {.tabset}
+
+## Processing (EMR) {.tabset}
+
+## Processing (Extras) {.tabset}
