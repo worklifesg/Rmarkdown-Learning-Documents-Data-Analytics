@@ -661,7 +661,7 @@ knitr::include_graphics('./images/S3_Client.png')
   * **Glacier Select can only do uncompressed CSV files**
 
 * **S3 Event Notifications**
-  * ObecjtCreated, ObjectRemoved, ObjectRestore, Replication
+  * ObjectCreated, ObjectRemoved, ObjectRestore, Replication
   * Automatically react to objects in S3
   * Object name filtering possible (*jpg)
   * Use Case: Generate thumbnails of images uploaded to S3
