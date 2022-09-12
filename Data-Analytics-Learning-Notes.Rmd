@@ -548,7 +548,7 @@ OneZoneIA="* High durability (99.999999999 %) across single AZ <br> * Data is lo
 
 Glacier="* Low cost object storage meant for archiving or backup <br> * Pricing: price for storage + object retrieval cost <br> * **Glacier IR:** ms  retrieval, great for data accessed once a quarter, minimum storage of 90 days <br> * **Glacier FR:** Expedited (1-5 min), Standard (3-5 hours), Bulk (5-12, free), minimum storage of 90 days <br> * **Glacier Deep Archive:** Standard (12h), Bulk (48h), minimum storage of 180 days "
 
-IT="* Small monthly monitoring & auto-tiering fee <br> * moves objects automatically between AccessTiers based on usage <br> * There are no retrieval charges <br> * **Frequent (default), Infrequent (30 days), Archive Instant (90 days), Archive Access (90 to 700+ days), Deep Archive Access (180 to 700+ days)"
+IT="* Small monthly monitoring & auto-tiering fee <br> * moves objects automatically between AccessTiers based on usage <br> * There are no retrieval charges <br> * **Frequent (default), Infrequent (30 days), Archive Instant (90 days), Archive Access (90 to 700+ days), Deep Archive Access (180 to 700+ days)**"
 
 tab_01 = data.frame(
   Standard= c(Standard),
@@ -571,11 +571,153 @@ knitr::include_graphics('./images/S3storage.png')
 
 ### S3 Lifecycle Rules
 
+Following diagram illustrates the transition of objects in S3 across different S3 Storage Classes:
+
+```{r echo=FALSE, out.width='35%', fig.align='center'}
+knitr::include_graphics('./images/S3Lifecycle.png')
+```
+
+* **Transition Action:** It define when objects are transitioned to another storage class
+
+  * Move objects to Standard IA 60 days after creation
+  * Move to glacier for archiving after 6 months
+
+* **Expiration Actions:** configure objects to expire after sometime
+  * Access log files can be set to delete after 365 days
+  * Can be used to delete old version of files (if versioning is enabled)
+  * Can be used to delete incomplete multi-part uploads
+
+* Rules are created for **certain prefix and certain object tags**
+
 ### S3 Performance
 
-### S3 Encryption + Security
+* **Baseline:**
+  * Automatically scales to high request rates, latency of 100-200 ms
+  * Application can achieve at least **3500 PUT/COPY/POST/DELETE & 5500 GETR/HEAD requests per seconds per prefix in a bucket**
+* **KMS Limits**
+  * If you use SSE-KMS, you may be impacted by KMS limits
+  * Upload a file --> **GenerateDataKey KMS API**
+  * Download a file --> **Decrypt KMS API**
+  * *KMS Quota* - Count towards KMS per second (5500, 10000, 30000 request/sec based on region)
+* **Optimization**
+  * *Multi-part upload* - recommended for files > 100 MB and must for files > 5 GB, help in parallelize uploads
+  * *S3 Transfer Acceleration* - Increase transfer speed by transferring file to AWS Edge location which will forward data to S3 bucket in target region
+* **Reading a file in most efficient way**
+  * *S3 Byte Range Fetches* - Parallelize GETs by requesting specific byte ranges, better resilience in case of failures
+  * Use case: To speed up downloads, To retrieve only partial data
+
+### S3 Encryption
+
+* **Encryption**
+  * **SSE-S3:** 
+    * encrypts S3 objects using keys **handled and managed by AWS**
+    * Object is encrypted **server side**
+    * AES-256 encryption side
+    * Must set header: **"x-amz-server-side-encryption":"AES256"**
+    
+```{r echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics('./images/S3_SSES3.png')
+```
+
+   * **SSE-KMS:** 
+      * Leverage AWS KMS to manage encryption keys
+      * User control + Audit trail
+      * **Object is encrypted server side**
+      * Must set header: **"x-amz-server-side-encryption":"aws:kms"**
+    
+```{r echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics('./images/S3_SSEKMS.png')
+```
+
+  * **SSE-C:** 
+    * When you want to manage your own manage encryption keys 
+    * S3 doesn't store encryption keys
+    * HTTPS must be used and **encryption is done at server side**
+    * Keys need to be provided in HTTP headers for every HTTP request made
+    
+```{r echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics('./images/S3_SSEC.png')
+```
+    
+  * **Client Side Encryption**
+    * When we encrypt the file before uploading the file to S3 at **client side**
+    * Client is responsible to decrypt as well when retrieving from S3 
+    * **Client manages keys and encryption cycle**
+    
+```{r echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics('./images/S3_Client.png')
+```
+        
+* **Encryption in transit (SSL/TLS)** 
+  * S3 exposes HTTP endpoint (non encrypted) and HTTPS endpoint (encryption in flight)
+  * HTTPS in mandatory for SSE-C
 
 ### S3 Other features
+
+* **S3 Select & Glacier Select**
+  * Retrieve less data using SQL by performing **server side filtering**
+  * Can filter by rows and columns
+  * less network transfer, less CPU cost client-side
+  * **Glacier Select can only do uncompressed CSV files**
+
+* **S3 Event Notifications**
+  * ObecjtCreated, ObjectRemoved, ObjectRestore, Replication
+  * Automatically react to objects in S3
+  * Object name filtering possible (*jpg)
+  * Use Case: Generate thumbnails of images uploaded to S3
+  * Destinations: SNS, SQS, Lambda
+  * **EventBridge Integration:**
+    * All events are triggered to Event Notification Bridge which can set rules to 18+ AWS service destinations
+    * Advanced filtering options with JSON
+    * Multiple destinations
+
+* **Versioning**
+
+  * Versioning of files can be in S3 but **can be enabled at bucket level**
+  * Same key overwrite will increment the version i.e. 1,2,3 ...
+  * **Recommended:**
+    * Protect against unintended deletes
+    * Easy roll back to previous version
+    * Any files that is *not* versioned, will have version "null"
+    * Suspending versioning doesn't delete previous versions
+    * Deleting a file, keeps the delete marker files intact to restore the object if needed
+    * Deleting a file and it's delete marker will delete the file permanently
+
+* **Replication**
+  * **CRR - Cross region replication** - to copy files from bucket in region 1 to bucket in region 2 **asynchronously** 
+    * Compliance, Lower latency access, replication across accounts
+  * **SRR - Same region replication** - to copy files from bucket in region to another bucket in same region **asynchronously** 
+    * Log aggregation, Live replication between production and test accounts
+  * **Notes**:
+    * must enable versioning in source and destination buckets
+    * buckets can be in different accounts as well
+    * *After activating, only new objects are replicated*
+    * Replicate existing objects using **S3 Batch Replication**
+    * Can replicate DELETE markers from source to target
+    * Deletions with Version ID are **NOT replicated**
+    * No **chaining of replication**
+
+* **Security**
+  * **User/Role based**: IAM policies - which API calls should be allowed for a specific user from IAM console
+  * **Resource based**: Bucket policies - bucket wide rules from S3 con sole - allows cross account
+    * Object ACL - finer grain
+    * Bucket ACL - less common
+  * **Networking**: Supports VPC Endpoints
+  * **Logging & Audit**: S3 access logs, API calls can be logged in CloudTrail
+  * **MFA Delete:** MFA can be required in versioned buckets to delete objects
+  * **Pre-Signed URLs:** URLs that are valid only for a limited time
+    
+* **Bucket Policies**
+  * *JSON based policies*
+    * Resource: Buckets and objects
+    * Actions: Set of API to Allow or Deny
+    * Effect: Allow/Deny
+    * Principal: account/user to apply policy to
+  * *Block Public Access*
+    * block objects to public access
+    * new ACLs, any ACLs, new public bucket or access point policies
+    * Can be set at account level
+    
 
 ## Storage (DynamoDB) {.tabset}
 
